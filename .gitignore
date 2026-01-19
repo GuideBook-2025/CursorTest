@@ -1,0 +1,21 @@
+# Visual Studio ?„?‹œ ?´?” ë°? ë¹Œë“œ ê²°ê³¼ë¬? ë¬´ì‹œ ?„¤? •
+.vs/
+Debug/
+Release/
+x64/
+x86/
+build/
+*.vcxproj.user
+*.users
+*.suo
+*.aps
+*.idb
+*.pdb
+*.ipch
+*.log
+*.tlog
+*.obj
+*.res
+*.ilk
+*.pch
+*.csv
