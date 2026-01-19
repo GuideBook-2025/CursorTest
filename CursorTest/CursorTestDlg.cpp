@@ -59,12 +59,25 @@ CCursorTestDlg::CCursorTestDlg(CWnd* pParent /*=nullptr*/)
 void CCursorTestDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	// 컨트롤과 멤버 변수 연결
+	DDX_Control(pDX, IDC_STATIC_TEXT, m_staticText);
+	DDX_Control(pDX, IDC_BUTTON_TEST, m_buttonTest);
+	DDX_Control(pDX, IDC_LIST_BOX, m_listBox);
+	DDX_Control(pDX, IDC_COMBO_BOX, m_comboBox);
+	DDX_Control(pDX, IDC_SCROLL_BAR, m_scrollBar);
+	DDX_Control(pDX, IDC_STATIC_SCROLL_VALUE, m_staticScrollValue);
 }
 
 BEGIN_MESSAGE_MAP(CCursorTestDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_TEST, &CCursorTestDlg::OnBnClickedButtonTest)
+	ON_BN_CLICKED(IDC_BUTTON_ADD_LIST, &CCursorTestDlg::OnBnClickedButtonAddList)
+	ON_BN_CLICKED(IDC_BUTTON_ADD_COMBO, &CCursorTestDlg::OnBnClickedButtonAddCombo)
+	ON_LBN_SELCHANGE(IDC_LIST_BOX, &CCursorTestDlg::OnLbnSelchangeListBox)
+	ON_CBN_SELCHANGE(IDC_COMBO_BOX, &CCursorTestDlg::OnCbnSelchangeComboBox)
+	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -100,6 +113,29 @@ BOOL CCursorTestDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	
+	// CStatic 초기화 - 텍스트 설정
+	m_staticText.SetWindowText(_T("초기 상태: 컨트롤이 준비되었습니다."));
+	
+	// CListBox 초기화 - 초기 항목 추가
+	m_listBox.AddString(_T("항목 1"));
+	m_listBox.AddString(_T("항목 2"));
+	m_listBox.AddString(_T("항목 3"));
+	
+	// CComboBox 초기화 - 초기 항목 추가
+	m_comboBox.AddString(_T("콤보 항목 1"));
+	m_comboBox.AddString(_T("콤보 항목 2"));
+	m_comboBox.AddString(_T("콤보 항목 3"));
+	m_comboBox.SetCurSel(0);  // 첫 번째 항목 선택
+	
+	// CScrollBar 초기화 - 범위 설정 (0~100)
+	m_scrollBar.SetScrollRange(0, 100);
+	m_scrollBar.SetScrollPos(0);
+	
+	// 스크롤 값 표시 초기화
+	CString strValue;
+	strValue.Format(_T("%d"), 0);
+	m_staticScrollValue.SetWindowText(strValue);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -153,3 +189,129 @@ HCURSOR CCursorTestDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+// CButton 클릭 이벤트 핸들러
+void CCursorTestDlg::OnBnClickedButtonTest()
+{
+	// CStatic의 텍스트 변경
+	m_staticText.SetWindowText(_T("버튼이 클릭되었습니다!"));
+	
+	// MessageBox로 알림
+	MessageBox(_T("CButton 예제: 버튼이 클릭되었습니다."), _T("알림"), MB_OK | MB_ICONINFORMATION);
+}
+
+// ListBox에 항목 추가 버튼 클릭 핸들러
+void CCursorTestDlg::OnBnClickedButtonAddList()
+{
+	static int nCount = 4;
+	CString strItem;
+	strItem.Format(_T("새 항목 %d"), nCount);
+	
+	// CListBox에 항목 추가
+	m_listBox.AddString(strItem);
+	nCount++;
+	
+	m_staticText.SetWindowText(_T("ListBox에 항목이 추가되었습니다."));
+}
+
+// ComboBox에 항목 추가 버튼 클릭 핸들러
+void CCursorTestDlg::OnBnClickedButtonAddCombo()
+{
+	static int nCount = 4;
+	CString strItem;
+	strItem.Format(_T("새 콤보 항목 %d"), nCount);
+	
+	// CComboBox에 항목 추가
+	m_comboBox.AddString(strItem);
+	nCount++;
+	
+	m_staticText.SetWindowText(_T("ComboBox에 항목이 추가되었습니다."));
+}
+
+// ListBox 선택 변경 이벤트 핸들러
+void CCursorTestDlg::OnLbnSelchangeListBox()
+{
+	int nSel = m_listBox.GetCurSel();
+	if (nSel != LB_ERR)
+	{
+		CString strItem;
+		m_listBox.GetText(nSel, strItem);
+		
+		CString strText;
+		strText.Format(_T("ListBox 선택: %s"), strItem);
+		m_staticText.SetWindowText(strText);
+	}
+}
+
+// ComboBox 선택 변경 이벤트 핸들러
+void CCursorTestDlg::OnCbnSelchangeComboBox()
+{
+	int nSel = m_comboBox.GetCurSel();
+	if (nSel != CB_ERR)
+	{
+		CString strItem;
+		m_comboBox.GetLBText(nSel, strItem);
+		
+		CString strText;
+		strText.Format(_T("ComboBox 선택: %s"), strItem);
+		m_staticText.SetWindowText(strText);
+	}
+}
+
+// ScrollBar 스크롤 이벤트 핸들러
+void CCursorTestDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// 우리의 ScrollBar인지 확인
+	if (pScrollBar == &m_scrollBar)
+	{
+		int nCurrentPos = m_scrollBar.GetScrollPos();
+		int nMin = 0, nMax = 0;
+		m_scrollBar.GetScrollRange(&nMin, &nMax);
+		
+		switch (nSBCode)
+		{
+		case SB_LEFT:			// 왼쪽 끝
+			nCurrentPos = nMin;
+			break;
+		case SB_RIGHT:			// 오른쪽 끝
+			nCurrentPos = nMax;
+			break;
+		case SB_LINELEFT:		// 왼쪽으로 한 칸
+			if (nCurrentPos > nMin)
+				nCurrentPos--;
+			break;
+		case SB_LINERIGHT:		// 오른쪽으로 한 칸
+			if (nCurrentPos < nMax)
+				nCurrentPos++;
+			break;
+		case SB_PAGELEFT:		// 왼쪽으로 한 페이지
+			nCurrentPos -= 10;
+			if (nCurrentPos < nMin)
+				nCurrentPos = nMin;
+			break;
+		case SB_PAGERIGHT:		// 오른쪽으로 한 페이지
+			nCurrentPos += 10;
+			if (nCurrentPos > nMax)
+				nCurrentPos = nMax;
+			break;
+		case SB_THUMBTRACK:		// 스크롤바 드래그
+		case SB_THUMBPOSITION:
+			nCurrentPos = nPos;
+			break;
+		}
+		
+		// 스크롤 위치 설정
+		m_scrollBar.SetScrollPos(nCurrentPos);
+		
+		// CStatic에 현재 값 표시
+		CString strValue;
+		strValue.Format(_T("%d"), nCurrentPos);
+		m_staticScrollValue.SetWindowText(strValue);
+		
+		// 메인 Static에도 표시
+		CString strText;
+		strText.Format(_T("ScrollBar 값: %d"), nCurrentPos);
+		m_staticText.SetWindowText(strText);
+	}
+	
+	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
+}
